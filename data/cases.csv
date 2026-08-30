@@ -1,0 +1,229 @@
+case_id,issue_type,symptom,topology_note,show_outputs,expected_fault,osi_layer,concept,severity
+NS-VLAN-01,VLAN,PC1 can ping other PCs on the same switch but cannot ping S1 in VLAN 20.,Lab: SW1 access ports. PC1 FastEthernet0/1. Server S1 FastEthernet0/11. Intended VLAN 20 for both.,"SW1# show vlan brief
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Fa0/1, Fa0/2, Fa0/3, Fa0/12
+20   STAFF                            active    Fa0/11
+SW1# show interfaces fa0/1 switchport
+Name: Fa0/1
+Switchport: Enabled
+Administrative Mode: static access
+Access Mode VLAN: 1 (default)",PC1 is still in VLAN 1 instead of VLAN 20,Layer 2,Wrong VLAN assignment,High
+NS-VLAN-02,VLAN,Hosts that should be in VLAN 30 cannot talk to each other. The VLAN name does not appear on the switch.,Lab: three PCs on SW2. Teacher asked for VLAN 30 named LAB-PCs on ports Fa0/5-Fa0/7.,"SW2# show vlan brief
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Fa0/1, Fa0/2, Fa0/5, Fa0/6, Fa0/7
+10   MGMT                             active    Fa0/24
+SW2# show interfaces fa0/5 switchport
+Access Mode VLAN: 30 (Inactive)",VLAN 30 was assigned on the ports but never created on the switch,Layer 2,Missing VLAN,High
+NS-VLAN-03,VLAN,VLAN 40 traffic from SW-A does not reach SW-B. PCs on each switch in VLAN 40 fail to ping.,Lab: SW-A Gi0/1 trunk to SW-B Gi0/1. VLAN 40 should be allowed on the trunk.,"SW-A# show interfaces trunk
+Port        Mode         Encapsulation  Status        Native vlan
+Gi0/1       on           802.1q         trunking      1
+Port        Vlans allowed on trunk
+Gi0/1       1,10,20
+SW-B# show interfaces trunk
+Port        Mode         Encapsulation  Status        Native vlan
+Gi0/1       on           802.1q         trunking      1
+Port        Vlans allowed on trunk
+Gi0/1       1,10,20,40",Allowed VLAN list on SW-A does not include VLAN 40,Layer 2,Trunk VLAN mismatch,Critical
+NS-VLAN-04,VLAN,The uplink between SW3 and R1 does not pass tagged VLAN 10. Inter-VLAN routing never starts.,Lab: SW3 Fa0/24 to R1 Fa0/0. SW3 should be a trunk. R1 uses subinterfaces.,"SW3# show interfaces fa0/24 switchport
+Name: Fa0/24
+Administrative Mode: static access
+Operational Mode: static access
+Access Mode VLAN: 1 (default)
+SW3# show interfaces trunk
+SW3#",Port Fa0/24 is left in access mode instead of trunk,Layer 2,Wrong access/trunk mode,High
+NS-GW-01,Gateway,PC-A gets an IP in 192.168.10.0/24 but cannot reach other subnets. Local pings work.,Lab: PC-A 192.168.10.21/24. R1 Fa0/0 is 192.168.10.1. Student typed the gateway during static IP setup.,"PC-A> ipconfig
+IP Address: 192.168.10.21
+Subnet Mask: 255.255.255.0
+Default Gateway: 192.168.10.254
+R1# show ip interface brief
+FastEthernet0/0    192.168.10.1    YES manual up    up",PC default gateway is 192.168.10.254 but the router is 192.168.10.1,Layer 3,Incorrect default gateway,High
+NS-GW-02,Gateway,PC-B cannot ping the gateway even though the IP looks close to the router address.,Lab: LAN 172.16.5.0/26. R2 Fa0/1 should be 172.16.5.1/26. PC-B was given a /24 mask by mistake.,"PC-B> ipconfig
+IP Address: 172.16.5.10
+Subnet Mask: 255.255.255.0
+Default Gateway: 172.16.5.1
+R2# show ip interface brief
+FastEthernet0/1    172.16.5.1    YES manual up    up
+R2# show running-config interface fa0/1
+ ip address 172.16.5.1 255.255.255.192",Host mask /24 does not match the router /26 network,Layer 3,Incorrect subnet mask,High
+NS-GW-03,Gateway,The whole 192.168.40.0/24 LAN has no way out. PCs ARP for the gateway and get no reply.,Lab: R3 Fa0/0 is the LAN gateway 192.168.40.1. Cable from SW4 to R3 is connected.,"R3# show ip interface brief
+Interface              IP-Address      OK? Method Status                Protocol
+FastEthernet0/0        192.168.40.1    YES manual administratively down down
+FastEthernet0/1        10.0.0.2        YES manual up                    up",Gateway interface is shut down,Layer 1,Interface down,Critical
+NS-GW-04,Gateway,Laptop L1 can ping its own address but traceroute never leaves the LAN.,Lab: L1 is in 10.20.30.0/24. Student copied a gateway from another lab worksheet.,"L1> ipconfig
+IP Address: 10.20.30.55
+Subnet Mask: 255.255.255.0
+Default Gateway: 10.20.40.1
+R4# show ip interface brief
+FastEthernet0/0        10.20.30.1      YES manual up    up",Gateway IP belongs to a different subnet than the host,Layer 3,Incorrect default gateway,High
+NS-DHCP-01,DHCP,PCs receive an address from R5 but still cannot leave their LAN.,Lab: R5 is DHCP server for 192.168.50.0/24. Pool name OFFICE. Hosts should use 192.168.50.1 as gateway.,"R5# show running-config | section dhcp
+ip dhcp excluded-address 192.168.50.1 192.168.50.10
+ip dhcp pool OFFICE
+ network 192.168.50.0 255.255.255.0
+ dns-server 8.8.8.8
+R5# show ip dhcp binding
+IP address       Client-ID/         Lease expiration        Type
+192.168.50.11    0060.2F3A.1111     --                      Automatic",DHCP pool has no default-router option,Layer 3,Missing DHCP option,High
+NS-DHCP-02,DHCP,No PC in VLAN 60 gets a lease. DHCP requests time out.,Lab: Pool should serve 192.168.60.0/24. R6 Fa0/0.60 is 192.168.60.1/24.,"R6# show ip dhcp pool
+Pool OFFICE-60 :
+ Utilization mark (high/low)    : 100 / 0
+ Subnet size (first/next)       : 0 / 0
+ Total addresses                : 254
+ Leased addresses               : 0
+R6# show running-config | section dhcp
+ip dhcp pool OFFICE-60
+ network 192.168.16.0 255.255.255.0
+ default-router 192.168.60.1",DHCP network statement points at 192.168.16.0 instead of 192.168.60.0,Layer 3,DHCP pool issue,High
+NS-DHCP-03,DHCP,Branch PCs on SW5 VLAN 70 never get an IP. The DHCP server lives on HQ router R-HQ.,Lab: R-BR Fa0/0.70 is 192.168.70.1. DHCP server is 10.1.1.5 on R-HQ. Relay is required.,"R-BR# show running-config interface fa0/0.70
+encapsulation dot1Q 70
+ip address 192.168.70.1 255.255.255.0
+R-BR# show ip interface fa0/0.70
+Helper address is not set
+PC-BR> ipconfig
+IP Address: 169.254.12.40",Missing ip helper-address on the VLAN 70 interface,Layer 3,Missing DHCP relay,Critical
+NS-DHCP-04,DHCP,The first few lab PCs got leases. Later PCs stay on APIPA.,Lab: Small pool 192.168.80.0/29 for a demo LAN. Many exclusions were added.,"R7# show ip dhcp pool
+Pool TINY :
+ Total addresses                : 6
+ Leased addresses               : 2
+ Excluded addresses             : 4
+R7# show running-config | section dhcp
+ip dhcp excluded-address 192.168.80.1 192.168.80.4
+ip dhcp pool TINY
+ network 192.168.80.0 255.255.255.248
+ default-router 192.168.80.1",Almost every usable address is excluded so the pool is empty,Layer 3,DHCP pool issue,Medium
+NS-DNS-01,DNS,Users can ping 192.168.90.10 but typing files.lab.local in the browser fails.,Lab: DNS server is 192.168.90.5. PC8 received DHCP from R8.,"PC8> ipconfig /all
+IP Address: 192.168.90.22
+Default Gateway: 192.168.90.1
+DNS Servers: 192.168.90.50
+R8# show running-config | section dhcp
+ip dhcp pool LAB90
+ network 192.168.90.0 255.255.255.0
+ default-router 192.168.90.1
+ dns-server 192.168.90.50",DHCP hands out a DNS server IP that does not exist on the LAN,Layer 7,Incorrect DNS configuration,Medium
+NS-DNS-02,DNS,Ping to 10.10.10.8 works. Ping to web.campus.lab resolves to the wrong host.,Lab: DNS server D1 holds campus.lab. Record for web.campus.lab should be 10.10.10.8.,"D1 DNS records (Packet Tracer DNS service)
+web.campus.lab    A    10.10.10.80
+files.campus.lab  A    10.10.10.9
+PC9> ping web.campus.lab
+Pinging 10.10.10.80 with 32 bytes of data
+Request timed out.",A record for web.campus.lab points at 10.10.10.80 instead of 10.10.10.8,Layer 7,Wrong DNS record,Medium
+NS-DNS-03,DNS,Name lookup fails from the guest VLAN even though the DNS server answers from the staff VLAN.,Lab: DNS server 10.2.2.2. Guest PCs use that address. ACL on R9 filters guest to staff.,"PC-GUEST> nslookup files.lab
+DNS request timed out
+R9# show access-lists
+Extended IP access list GUEST-FILTER
+    10 deny ip 192.168.100.0 0.0.0.255 10.2.2.0 0.0.0.255
+    20 permit ip any any
+R9# show ip interface fa0/0
+Outgoing access list is GUEST-FILTER",ACL denies guest subnet to the DNS server network,Layer 4,Incorrect DNS configuration,High
+NS-RT-01,Routing,Office LAN 192.168.1.0/24 cannot reach the server LAN 192.168.2.0/24. The return path exists.,Lab: R10 Fa0/0 192.168.1.1. R11 Fa0/0 192.168.2.1. Serial link 10.0.0.0/30.,"R10# show ip route
+Gateway of last resort is not set
+     10.0.0.0/30 is subnetted, 1 subnets
+C       10.0.0.0 is directly connected, Serial0/0/0
+C    192.168.1.0/24 is directly connected, FastEthernet0/0
+R11# show ip route
+C    192.168.2.0/24 is directly connected, FastEthernet0/0
+S    192.168.1.0/24 [1/0] via 10.0.0.1",R10 has no route to 192.168.2.0/24,Layer 3,Missing route,High
+NS-RT-02,Routing,Traffic from Branch to HQ goes into a black hole. HQ never sees the packets.,Lab: R-BR should send 10.8.0.0/16 toward 172.16.0.2. Serial peers are 172.16.0.1 and 172.16.0.2.,"R-BR# show ip route
+S    10.8.0.0/16 [1/0] via 172.16.0.5
+C    172.16.0.0/30 is directly connected, Serial0/0/0
+R-BR# show ip interface brief
+Serial0/0/0        172.16.0.1      YES manual up    up",Static route uses next hop 172.16.0.5 which is not on the link,Layer 3,Wrong next hop,High
+NS-RT-03,Routing,OSPF neighbors stay down between R12 and R13. Both links show up/up.,Lab: R12 S0/0/0 10.12.13.1/30 area 0. R13 S0/0/0 10.12.13.2/30. Area mismatch was introduced during lab setup.,"R12# show ip ospf neighbor
+R12# show ip protocols
+Routing Protocol is ospf 1
+  Router ID 1.1.1.1
+  Routing for Networks:
+    10.12.13.0 0.0.0.3 area 0
+R13# show ip protocols
+Routing Protocol is ospf 1
+  Router ID 2.2.2.2
+  Routing for Networks:
+    10.12.13.0 0.0.0.3 area 1
+R13# show ip ospf neighbor",OSPF area does not match on the shared link,Layer 3,OSPF issue,High
+NS-RT-04,Routing,Internal users cannot reach the simulated Internet 8.8.8.8. East-west LAN routing still works.,Lab: Edge router R14 should have a default route toward ISP 203.0.113.1.,"R14# show ip route
+Gateway of last resort is not set
+C    192.168.14.0/24 is directly connected, FastEthernet0/0
+C    203.0.113.0/30 is directly connected, FastEthernet0/1
+R14# ping 8.8.8.8
+    Success rate is 0 percent (0/5)",No default route toward the ISP,Layer 3,Missing route,Medium
+NS-RT-05,Routing,OSPF is up but the loopback 172.31.5.5/32 on R15 never appears on R16.,Lab: R15 Lo0 is a test prefix that should be advertised in OSPF area 0.,"R15# show ip interface brief
+Loopback0          172.31.5.5      YES manual up    up
+R15# show ip protocols
+Routing Protocol is ospf 1
+  Routing for Networks:
+    10.15.16.0 0.0.0.3 area 0
+R16# show ip route ospf
+     10.0.0.0/30 is subnetted, 1 subnets
+O       10.15.16.0 [110/64] via 10.15.16.1, 00:04:11, Serial0/0/0",Loopback network is not included in the OSPF network statements,Layer 3,OSPF issue,Medium
+NS-ACL-01,ACL,PC-STAFF can ping S-WEB at 192.168.200.10 but HTTP from the browser fails.,Lab: R17 Fa0/1 faces the server LAN. ACL WEB-IN was placed inbound on that interface.,"R17# show access-lists
+Extended IP access list WEB-IN
+    10 deny tcp any host 192.168.200.10 eq www
+    20 permit ip any any
+R17# show ip interface fa0/1
+Incoming access list is WEB-IN
+PC-STAFF> ping 192.168.200.10
+Reply from 192.168.200.10",ACL line 10 drops HTTP to the web server,Layer 4,ACL blocking legitimate traffic,High
+NS-ACL-02,ACL,Remote admin cannot SSH to R18 even though the permit line looks correct.,Lab: Admin PC 192.168.18.50. ACL applied on Fa0/0. Goal is to allow SSH from that host only.,"R18# show access-lists
+Extended IP access list ADMIN-SSH
+    10 permit tcp host 192.168.18.50 host 192.168.18.1 eq 22
+    20 deny ip any any
+R18# show ip interface fa0/0
+Outgoing access list is ADMIN-SSH",ACL is applied outbound so inbound SSH never matches the permit,Layer 4,ACL blocking legitimate traffic,High
+NS-ACL-03,ACL,Guest Wi-Fi users cannot open websites. They can ping 8.8.8.8. Staff VLAN is fine.,Lab: Guest VLAN 110. ACL GUEST-ISOLATE on R19 Fa0/0.110. DNS is 8.8.8.8.,"R19# show access-lists
+Extended IP access list GUEST-ISOLATE
+    10 deny ip 192.168.110.0 0.0.0.255 192.168.0.0 0.0.255.255
+    20 permit icmp any any
+    30 deny udp any any eq 53
+    40 permit ip any any
+R19# show ip interface fa0/0.110
+Outgoing access list is GUEST-ISOLATE",Guest ACL blocks DNS UDP/53 so names never resolve,Layer 4,Guest network isolation problem,High
+NS-ACL-04,ACL,A new permit for TCP 443 was added but users still cannot reach the HTTPS portal.,Lab: ACL PORTAL on R20 WAN interface. Line numbers were not checked after the edit.,"R20# show access-lists
+Extended IP access list PORTAL
+    10 deny ip any host 203.0.113.50
+    20 permit tcp any host 203.0.113.50 eq 443
+    30 permit ip any any
+R20# show ip interface serial0/0/0
+Incoming access list is PORTAL",Deny any to the portal host is processed before the HTTPS permit,Layer 4,ACL blocking legitimate traffic,Critical
+NS-NAT-01,NAT,Inside PCs ping each other. Packets to 8.8.8.8 leave with private source addresses and get no reply.,Lab: R21 Fa0/0 inside 192.168.21.1. Fa0/1 outside 198.51.100.2. PAT was supposed to be configured.,"R21# show ip nat translations
+R21# show ip nat statistics
+Total translations: 0
+Outside interfaces:
+Inside interfaces:
+Hits: 0  Misses: 0
+R21# show running-config | include nat
+R21#",No NAT pool or overload statement exists,Layer 3,Missing NAT,High
+NS-NAT-02,NAT,NAT translation table stays empty even after pinging the outside host.,Lab: R22 has ip nat inside source list 1 interface fa0/1 overload. Interfaces may be reversed.,"R22# show running-config
+interface FastEthernet0/0
+ ip address 198.51.100.6 255.255.255.252
+ ip nat inside
+interface FastEthernet0/1
+ ip address 192.168.22.1 255.255.255.0
+ ip nat outside
+access-list 1 permit 192.168.22.0 0.0.0.255
+ip nat inside source list 1 interface FastEthernet0/1 overload
+R22# show ip nat translations",Inside and outside NAT roles are swapped on the interfaces,Layer 3,Incorrect NAT scope,High
+NS-NAT-03,NAT,Outside users cannot open the lab web server on port 80. Inside users can browse it locally.,Lab: Static NAT should map 198.51.100.20 tcp 80 to 192.168.23.10. Server IP is 192.168.23.10.,"R23# show running-config | include nat
+ip nat inside source static tcp 192.168.23.80 80 198.51.100.20 80
+R23# show ip nat translations
+Pro Inside global      Inside local       Outside local      Outside global
+tcp 198.51.100.20:80   192.168.23.80:80   ---                ---",Port forward points at 192.168.23.80 instead of the real server 192.168.23.10,Layer 4,Port forwarding error,High
+NS-WL-01,Wireless,Phones join SSID CAMPUS-STAFF but receive a guest IP and cannot reach staff file shares.,Lab: WLC/AP mapping. SSID CAMPUS-STAFF should be VLAN 20. Guest SSID uses VLAN 90.,"AP1 WLAN mapping (Packet Tracer)
+SSID CAMPUS-STAFF  VLAN 90
+SSID CAMPUS-GUEST  VLAN 90
+SW-W# show vlan brief
+20   STAFF   active   Gi1/0/8
+90   GUEST   active   Gi1/0/8
+PC-WIFI> ipconfig
+IP Address: 192.168.90.40
+Default Gateway: 192.168.90.1",SSID CAMPUS-STAFF is mapped to the guest VLAN,Layer 2,Wireless SSID mapped to wrong VLAN,High
+NS-WL-02,Wireless,Wireless clients associate then lose all traffic after the first ARP. Wired VLAN 20 is healthy.,Lab: AP management on Fa0/1. User VLAN 20 must be tagged on the AP uplink to SW-W.,"SW-W# show interfaces fa0/1 switchport
+Administrative Mode: static access
+Access Mode VLAN: 1 (default)
+SW-W# show interfaces trunk
+SW-W#
+AP1 status: Radio up. Clients associated: 3",AP uplink is an access port on VLAN 1 so client VLAN 20 never reaches the switch,Layer 2,Wireless uplink failure,Critical
+NS-WL-03,Wireless,SSID LAB-WIFI is visible but nobody can associate. The AP Ethernet LED is off in Packet Tracer.,Lab: AP-Lab Fa0/1 to SW6 Fa0/10. Power and SSID are configured. Uplink port was shut.,"SW6# show interfaces fa0/10 status
+Port      Name               Status       Vlan       Duplex  Speed Type
+Fa0/10    AP-Lab             disabled     20         auto    auto  10/100
+SW6# show ip interface brief
+FastEthernet0/10   unassigned      YES unset  administratively down down",Switch port toward the AP is administratively down,Layer 1,Wireless uplink failure,Critical
