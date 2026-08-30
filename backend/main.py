@@ -12,6 +12,8 @@ from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
+
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
@@ -395,3 +397,9 @@ def rule_check(body: RuleCheckRequest):
         "error_count": sum(1 for item in findings if item.level == "ERROR"),
         "warning_count": sum(1 for item in findings if item.level == "WARNING"),
     }
+
+
+frontend_dist = ROOT / "frontend" / "dist"
+if frontend_dist.exists():
+    app.mount("/", StaticFiles(directory=str(frontend_dist), html=True), name="static")
+
