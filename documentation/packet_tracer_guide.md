@@ -2,6 +2,15 @@
 
 NetSage AI never opens Packet Tracer by itself. You break a small lab, copy show output, paste it into the web app, review the suggestion, then type the approved change back in Packet Tracer.
 
+## Included Packet Tracer (.pkt) Lab Files
+
+The repository includes ready-to-use Cisco Packet Tracer lab files in the `Packet_Tracer/` directory:
+- `NetSage_Master.pkt` — Master lab topology
+- `Case_01_Wrong_Gateway.pkt` — Lab pre-configured with Wrong Gateway fault
+- `Case_02_Wrong_IP.pkt` — Lab pre-configured with Wrong IP fault
+- `Case_03_Wrong_Subnet.pkt` — Lab pre-configured with Wrong Subnet Mask fault
+- `Case_04_Duplicate_IP.pkt` — Lab pre-configured with Duplicate IP fault
+
 ## Suggested lab shape
 
 Keep topologies small: two switches, one or two routers, a few PCs, optional AP. That is enough for a 5–10 minute demo.

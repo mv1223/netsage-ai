@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "backend"))
 sys.path.insert(0, str(ROOT / "checker"))
 
 from rule_checker import format_report, load_state, run_checks  # noqa: E402
@@ -367,9 +368,11 @@ def dashboard(db: Session = Depends(get_db)):
         agreement = round((accepted / reviewed) * 100, 1)
         agreement_label = f"{agreement}%"
 
+    db_types = [t[0] for t in db.query(Case.issue_type).distinct().all() if t[0]]
+    all_types = list(dict.fromkeys(ISSUE_TYPES + db_types))
     return {
         "total_cases": total,
-        "by_issue_type": {name: by_type.get(name, 0) for name in ISSUE_TYPES},
+        "by_issue_type": {name: by_type.get(name, 0) for name in all_types},
         "critical": by_sev.get("Critical", 0),
         "high": by_sev.get("High", 0),
         "medium": by_sev.get("Medium", 0),

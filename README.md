@@ -154,6 +154,18 @@ From the project root, venv active:
 pytest -q
 ```
 
+## Deploying to Render
+
+1. Push your repository to GitHub / GitLab.
+2. In Render Dashboard, click **New +** -> **Web Service** (or **Blueprint** using `render.yaml`).
+3. Connect your repository.
+4. Set the following configuration:
+   - **Environment**: `Python`
+   - **Build Command**: `./build.sh`
+   - **Start Command**: `uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
+5. (Optional) Add `OPENAI_API_KEY` under **Environment Variables** if using OpenAI.
+6. Click **Deploy Web Service**. Render will automatically build the React frontend, bundle static assets, and serve FastAPI.
+
 ## Limitations
 
 - Packet Tracer is not remote-controlled.

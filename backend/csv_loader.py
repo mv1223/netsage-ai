@@ -6,7 +6,24 @@ from sqlalchemy.orm import Session
 from models import Case, ResponsibleAIRecord
 
 ROOT = Path(__file__).resolve().parent.parent
-CASES_CSV = ROOT / "data" / "cases.csv"
+
+def find_cases_csv() -> Path:
+    candidates = [
+        ROOT / "data" / "cases.csv",
+        ROOT / "data" / "dataset" / "cases (2).csv",
+    ]
+    for path in candidates:
+        if path.exists():
+            return path
+    data_dir = ROOT / "data"
+    if data_dir.exists():
+        for csv_file in data_dir.glob("*.csv"):
+            return csv_file
+        dataset_dir = data_dir / "dataset"
+        if dataset_dir.exists():
+            for csv_file in dataset_dir.glob("*.csv"):
+                return csv_file
+    return ROOT / "data" / "cases.csv"
 
 
 TEMPLATE_RECORDS = [
@@ -62,20 +79,29 @@ def load_cases(db: Session) -> int:
     if db.query(Case).count() > 0:
         return db.query(Case).count()
 
-    with CASES_CSV.open(encoding="utf-8", newline="") as handle:
+    csv_path = find_cases_csv()
+    if not csv_path.exists():
+        return 0
+
+    with csv_path.open(encoding="utf-8", newline="") as handle:
         reader = csv.DictReader(handle)
-        for row in reader:
+        for raw_row in reader:
+            row = {k.lower().strip(): v for k, v in raw_row.items() if k}
+            case_id = row.get("case_id", "").strip()
+            if not case_id:
+                continue
+            show_val = row.get("show_outputs") or row.get("show_output") or ""
             db.add(
                 Case(
-                    case_id=row["case_id"].strip(),
-                    issue_type=row["issue_type"].strip(),
-                    symptom=row["symptom"].strip(),
-                    topology_note=row["topology_note"].strip(),
-                    show_outputs=row["show_outputs"].strip(),
-                    expected_fault=row["expected_fault"].strip(),
-                    osi_layer=row["osi_layer"].strip(),
-                    concept=row["concept"].strip(),
-                    severity=row["severity"].strip(),
+                    case_id=case_id,
+                    issue_type=row.get("issue_type", "").strip(),
+                    symptom=row.get("symptom", "").strip(),
+                    topology_note=row.get("topology_note", "").strip(),
+                    show_outputs=show_val.strip(),
+                    expected_fault=row.get("expected_fault", "").strip(),
+                    osi_layer=row.get("osi_layer", "").strip(),
+                    concept=row.get("concept", "").strip(),
+                    severity=row.get("severity", "").strip(),
                 )
             )
     db.commit()
