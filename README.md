@@ -46,14 +46,11 @@ The browser talks to `/api` on the Vite dev server, which proxies to FastAPI on 
 `data/cases.csv` has 30 rows:
 
 | Topic | Count |
-| VLAN | 4 |
-| Gateway | 4 |
-| DHCP | 4 |
-| DNS | 3 |
-| Routing | 5 |
-| ACL | 4 |
-| NAT | 3 |
-| Wireless | 3 |
+| Default Gateway | 9 |
+| Subnet Mask / Subnetting | 9 |
+| IP Addressing | 6 |
+| Duplicate / IP Conflict | 3 |
+| Network/Gateway Matching | 3 |
 
 Each row has case_id, issue_type, symptom, topology_note, show_outputs, expected_fault, osi_layer, concept, and severity. The show output is teaching text written for this project, not a dump from a production network.
 

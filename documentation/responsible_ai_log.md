@@ -8,63 +8,63 @@ Live Edited and Rejected reviews also appear in the web app table.
 
 ---
 
-## Record 1 — Trunk / VLAN (TEMPLATE)
+## Record 1 — Default Gateway (TEMPLATE)
 
-- Case ID: NS-VLAN-03
-- Initial AI diagnosis: [TEMPLATE — replace after lab testing] Possible native VLAN mismatch on the trunk.
-- Human correction: [TEMPLATE] Allowed VLAN list on SW-A is missing VLAN 40.
-- Why AI was incorrect/incomplete: [TEMPLATE] Native VLAN 1 on both sides looked like a mismatch story. The allowed lists were the stronger evidence.
+- Case ID: NET-001
+- Initial AI diagnosis: [TEMPLATE — replace after lab testing] Incorrect default gateway configured on PC1.
+- Human correction: [TEMPLATE] PC1 gateway set to 192.168.10.254 instead of R1 G0/0 (192.168.10.1).
+- Why AI was incorrect/incomplete: [TEMPLATE] Focus was on remote side router interface instead of local subnet IP.
 - Evidence used by human: [TEMPLATE] [ADD ACTUAL PACKET TRACER OUTPUT HERE]
 - Final decision: Edited
-- Final approved diagnosis: [TEMPLATE] Add VLAN 40 to the SW-A trunk allowed list.
+- Final approved diagnosis: [TEMPLATE] Change PC1 default gateway to 192.168.10.1.
 
 ---
 
-## Record 2 — DHCP (TEMPLATE)
+## Record 2 — Subnet Mask / Subnetting (TEMPLATE)
 
-- Case ID: NS-DHCP-03
-- Initial AI diagnosis: [TEMPLATE — replace after lab testing] DHCP pool is empty or excluded.
-- Human correction: [TEMPLATE] Missing ip helper-address on Fa0/0.70.
-- Why AI was incorrect/incomplete: [TEMPLATE] APIPA has several causes. The interface config showed the relay was absent.
+- Case ID: NET-003
+- Initial AI diagnosis: [TEMPLATE — replace after lab testing] Subnet mask mismatch on host.
+- Human correction: [TEMPLATE] Subnet mask 255.255.255.255 places gateway outside PC1 calculated subnet.
+- Why AI was incorrect/incomplete: [TEMPLATE] Missed host mask /32 vs LAN /24 interface.
 - Evidence used by human: [TEMPLATE] [ADD ACTUAL PACKET TRACER OUTPUT HERE]
 - Final decision: Edited
-- Final approved diagnosis: [TEMPLATE] Configure helper 10.1.1.5 on the branch SVI.
+- Final approved diagnosis: [TEMPLATE] Update PC1 subnet mask to 255.255.255.0.
 
 ---
 
-## Record 3 — ACL (TEMPLATE)
+## Record 3 — Duplicate / IP Conflict (TEMPLATE)
 
-- Case ID: NS-ACL-01
-- Initial AI diagnosis: [TEMPLATE — replace after lab testing] HTTP service is down on the server.
-- Human correction: [TEMPLATE] ACL WEB-IN denies TCP/80.
-- Why AI was incorrect/incomplete: [TEMPLATE] Successful ping was read as “server is fine” without reading the ACL.
+- Case ID: NET-004
+- Initial AI diagnosis: [TEMPLATE — replace after lab testing] Unreliable LAN communication.
+- Human correction: [TEMPLATE] Duplicate IP address conflict between PC1 and PC2 (192.168.10.10).
+- Why AI was incorrect/incomplete: [TEMPLATE] Focused on interface status rather than MAC address conflict.
 - Evidence used by human: [TEMPLATE] [ADD ACTUAL PACKET TRACER OUTPUT HERE]
 - Final decision: Edited
-- Final approved diagnosis: [TEMPLATE] Adjust line 10; do not remove the whole ACL.
+- Final approved diagnosis: [TEMPLATE] Change PC2 address to 192.168.10.11.
 
 ---
 
-## Record 4 — NAT (TEMPLATE)
+## Record 4 — Unreachable Gateway (TEMPLATE)
 
-- Case ID: NS-NAT-02
-- Initial AI diagnosis: [TEMPLATE — replace after lab testing] ACL 1 does not match inside hosts.
-- Human correction: [TEMPLATE] NAT inside/outside are on the wrong interfaces.
-- Why AI was incorrect/incomplete: [TEMPLATE] The ACL permit was correct. The empty translation table came from reversed roles.
+- Case ID: NET-011
+- Initial AI diagnosis: [TEMPLATE — replace after lab testing] Unreachable gateway IP.
+- Human correction: [TEMPLATE] PC1 points to unused gateway address 192.168.10.254.
+- Why AI was incorrect/incomplete: [TEMPLATE] Router G0/0 was up but host pointed to wrong IP.
 - Evidence used by human: [TEMPLATE] [ADD ACTUAL PACKET TRACER OUTPUT HERE]
 - Final decision: Edited
-- Final approved diagnosis: [TEMPLATE] LAN = ip nat inside, WAN = ip nat outside.
+- Final approved diagnosis: [TEMPLATE] Reconfigure PC1 gateway to 192.168.10.1.
 
 ---
 
-## Record 5 — Guest wireless isolation (TEMPLATE)
+## Record 5 — Network/Gateway Matching (TEMPLATE)
 
-- Case ID: NS-WL-01 (related isolation: NS-ACL-03)
-- Initial AI diagnosis: [TEMPLATE — replace after lab testing] Wrong WPA key.
-- Human correction: [TEMPLATE] Staff SSID mapped to guest VLAN / DNS blocked in guest ACL as applicable.
-- Why AI was incorrect/incomplete: [TEMPLATE] Clients associated, so the key was not the first problem. The IP or DNS path was.
+- Case ID: NET-028
+- Initial AI diagnosis: [TEMPLATE — replace after lab testing] Remote network reachability failure.
+- Human correction: [TEMPLATE] PC1 gateway set to R1 G0/1 remote address 192.168.20.1.
+- Why AI was incorrect/incomplete: [TEMPLATE] PC1 is on 192.168.10.0/24 LAN, so local gateway is G0/0.
 - Evidence used by human: [TEMPLATE] [ADD ACTUAL PACKET TRACER OUTPUT HERE]
 - Final decision: Edited
-- Final approved diagnosis: [TEMPLATE] Fix SSID-to-VLAN mapping or permit DNS without dropping guest isolation.
+- Final approved diagnosis: [TEMPLATE] Set PC1 gateway to local router interface 192.168.10.1.
 
 ---
 

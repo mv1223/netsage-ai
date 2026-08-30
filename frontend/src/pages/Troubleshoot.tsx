@@ -99,7 +99,7 @@ export default function Troubleshoot() {
         <div className="row-2">
           <label>
             Case ID (optional)
-            <input value={caseId} onChange={(e) => setCaseId(e.target.value)} placeholder="NS-VLAN-01" />
+            <input value={caseId} onChange={(e) => setCaseId(e.target.value)} placeholder="NET-001" />
           </label>
           <label>
             What's wrong?

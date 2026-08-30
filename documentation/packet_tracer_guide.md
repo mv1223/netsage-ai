@@ -52,65 +52,36 @@ Use this placeholder in the report until you have a real capture:
 
 ## Case-by-case build notes
 
-NS-VLAN-01 — Put PC1 and S1 in VLAN 20. Leave Fa0/1 in VLAN 1.
-
-NS-VLAN-02 — `switchport access vlan 30` on Fa0/5-7 without `vlan 30`.
-
-NS-VLAN-03 — Allow VLAN 40 on SW-B only. Omit 40 on SW-A.
-
-NS-VLAN-04 — Leave the router-facing port in access mode.
-
-NS-GW-01 — Static PC gateway 192.168.10.254 while R1 is .1.
-
-NS-GW-02 — PC /24, router LAN /26.
-
-NS-GW-03 — `shutdown` on the LAN gateway interface.
-
-NS-GW-04 — Gateway IP from another worksheet subnet.
-
-NS-DHCP-01 — DHCP pool without `default-router`.
-
-NS-DHCP-02 — Pool `network` statement on the wrong prefix.
-
-NS-DHCP-03 — DHCP server on HQ, no helper on the branch SVI.
-
-NS-DHCP-04 — Exclude almost the entire /29.
-
-NS-DNS-01 — DHCP `dns-server` pointing at an unused address.
-
-NS-DNS-02 — Wrong A record for web.campus.lab.
-
-NS-DNS-03 — Guest ACL deny to the DNS subnet.
-
-NS-RT-01 — Static route only on one router of a two-router lab.
-
-NS-RT-02 — Static next hop that is not on the serial /30.
-
-NS-RT-03 — OSPF area 0 on one side, area 1 on the other.
-
-NS-RT-04 — No `ip route 0.0.0.0 0.0.0.0`.
-
-NS-RT-05 — Loopback up, missing from OSPF network list.
-
-NS-ACL-01 — deny tcp eq www in front of permit ip any any.
-
-NS-ACL-02 — Correct SSH ACL applied outbound.
-
-NS-ACL-03 — Guest ACL deny UDP/53.
-
-NS-ACL-04 — deny host before permit 443.
-
-NS-NAT-01 — Inside hosts, no NAT statements.
-
-NS-NAT-02 — inside/outside swapped.
-
-NS-NAT-03 — Static PAT to the wrong inside host.
-
-NS-WL-01 — Staff SSID mapped to guest VLAN.
-
-NS-WL-02 — AP uplink access VLAN 1.
-
-NS-WL-03 — AP switchport shut.
+NET-001 — Default Gateway: PC1 configured with gateway 192.168.10.254 instead of R1 G0/0 (192.168.10.1).
+NET-002 — Incorrect IP Address: PC1 assigned 192.168.20.10 on the 192.168.10.0/24 LAN.
+NET-003 — Incorrect Subnet Mask: PC1 configured with subnet mask 255.255.255.255 instead of /24.
+NET-004 — Duplicate IP Address: PC1 and PC2 both configured with 192.168.10.10.
+NET-005 — Incorrect PC2 IP Address: PC2 assigned 192.168.20.11 on the client LAN.
+NET-006 — Incorrect PC2 Gateway: PC2 set to gateway 192.168.20.1 (remote router IP).
+NET-007 — Incorrect PC2 Subnet Mask: PC2 configured with 255.255.255.255 subnet mask.
+NET-008 — Incorrect Server IP Address: Server assigned 192.168.10.100 on the 192.168.20.0/24 LAN.
+NET-009 — Incorrect Server Gateway: Server set to gateway 192.168.10.1 (client-side gateway).
+NET-010 — Incorrect Server Subnet Mask: Server configured with 255.255.255.255 subnet mask.
+NET-011 — Unreachable PC1 Gateway: PC1 points to unused gateway address 192.168.10.254.
+NET-012 — Unreachable PC2 Gateway: PC2 points to unused gateway address 192.168.10.254.
+NET-013 — Unreachable Server Gateway: Server points to unused gateway address 192.168.20.254.
+NET-014 — PC1 Incorrect Subnet Size: PC1 configured with /25 (255.255.255.128) instead of /24.
+NET-015 — PC2 Incorrect Subnet Size: PC2 configured with /25 (255.255.255.128) instead of /24.
+NET-016 — Server Incorrect Subnet Size: Server configured with /25 (255.255.255.128) instead of /24.
+NET-017 — PC1 Wrong Network Address: PC1 assigned 192.168.20.10 instead of 192.168.10.x.
+NET-018 — PC2 Wrong Network Address: PC2 assigned 192.168.20.11 instead of 192.168.10.x.
+NET-019 — Server Wrong Network Address: Server assigned 192.168.10.100 instead of 192.168.20.x.
+NET-020 — PC1 Gateway Typo: PC1 gateway set to 192.168.10.2 (typo).
+NET-021 — PC2 Gateway Typo: PC2 gateway set to 192.168.10.2 (typo).
+NET-022 — Server Gateway Typo: Server gateway set to 192.168.20.2 (typo).
+NET-023 — PC1 Address Conflict with PC2: PC1 assigned PC2's address (192.168.10.11).
+NET-024 — PC2 Address Conflict with PC1: PC2 assigned PC1's address (192.168.10.10).
+NET-025 — PC1 /30 Subnet Error: PC1 given subnet mask 255.255.255.252 (/30).
+NET-026 — PC2 /30 Subnet Error: PC2 given subnet mask 255.255.255.252 (/30).
+NET-027 — Server /30 Subnet Error: Server given subnet mask 255.255.255.252 (/30).
+NET-028 — PC1 Remote Gateway: PC1 gateway points to remote router G0/1 (192.168.20.1).
+NET-029 — PC2 Remote Gateway: PC2 gateway points to remote router G0/1 (192.168.20.1).
+NET-030 — Server Remote Gateway: Server gateway points to local router G0/0 (192.168.10.1).
 
 ## After the fix
 
