@@ -69,7 +69,13 @@ async def hidden_server_error(_: Request, exc: Exception):
         content={"detail": "Something went wrong on the server. Try again. Details are not shown here."},
     )
 
-ISSUE_TYPES = ["VLAN", "Gateway", "DHCP", "DNS", "Routing", "ACL", "NAT", "Wireless"]
+ISSUE_TYPES = [
+    "IP Addressing",
+    "Default Gateway",
+    "Subnet Mask / Subnetting",
+    "Duplicate / IP Conflict",
+    "Network/Gateway Matching",
+]
 
 
 def _diagnosis_payload(row: Diagnosis) -> dict:

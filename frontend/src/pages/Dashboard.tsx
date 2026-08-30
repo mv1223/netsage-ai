@@ -44,10 +44,9 @@ export default function Dashboard() {
         </article>
       </div>
       <p className="lede">
-        VLAN {data.by_issue_type.VLAN} · Gateway {data.by_issue_type.Gateway} · DHCP{" "}
-        {data.by_issue_type.DHCP} · DNS {data.by_issue_type.DNS} · Routing {data.by_issue_type.Routing}{" "}
-        · ACL {data.by_issue_type.ACL} · NAT {data.by_issue_type.NAT} · Wireless{" "}
-        {data.by_issue_type.Wireless}
+        {Object.entries(data.by_issue_type)
+          .map(([type, count]) => `${type}: ${count}`)
+          .join(" · ")}
       </p>
 
       <div className="split">

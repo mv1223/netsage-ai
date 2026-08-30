@@ -2,7 +2,14 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, CaseListItem } from "../api";
 
-const TYPES = ["", "VLAN", "Gateway", "DHCP", "DNS", "Routing", "ACL", "NAT", "Wireless"];
+const TYPES = [
+  "",
+  "IP Addressing",
+  "Default Gateway",
+  "Subnet Mask / Subnetting",
+  "Duplicate / IP Conflict",
+  "Network/Gateway Matching",
+];
 const SEVS = ["", "Critical", "High", "Medium"];
 const OSI = ["", "Layer 1", "Layer 2", "Layer 3", "Layer 4", "Layer 7"];
 const REV = ["", "NONE", "PENDING", "ACCEPTED", "EDITED", "REJECTED"];
