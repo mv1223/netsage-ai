@@ -8,22 +8,14 @@ from models import Case, ResponsibleAIRecord
 ROOT = Path(__file__).resolve().parent.parent
 
 def find_cases_csv() -> Path:
-    candidates = [
-        ROOT / "data" / "cases.csv",
-        ROOT / "data" / "dataset" / "cases (2).csv",
-    ]
-    for path in candidates:
-        if path.exists():
-            return path
+    csv_path = ROOT / "data" / "cases.csv"
+    if csv_path.exists():
+        return csv_path
     data_dir = ROOT / "data"
     if data_dir.exists():
-        for csv_file in data_dir.glob("*.csv"):
-            return csv_file
-        dataset_dir = data_dir / "dataset"
-        if dataset_dir.exists():
-            for csv_file in dataset_dir.glob("*.csv"):
-                return csv_file
-    return ROOT / "data" / "cases.csv"
+        for file in data_dir.glob("*.csv"):
+            return file
+    return csv_path
 
 
 TEMPLATE_RECORDS = [
