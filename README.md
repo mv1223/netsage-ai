@@ -35,8 +35,7 @@ Build a local web tool that:
 - React 18, TypeScript, Vite
 - FastAPI, SQLAlchemy, SQLite
 - Python 3 for the rule checker and tests (pytest)
-- Optional OpenAI Chat Completions API if `OPENAI_API_KEY` is set
-
+- 
 ## System architecture
 
 The browser talks to `/api` on the Vite dev server, which proxies to FastAPI on port 8000. FastAPI loads `data/cases.csv` into SQLite on first start. `/api/analyze` calls either OpenAI (if a key exists) or a local pattern helper. Both paths must return the same JSON shape and leave `human_review.status` as `PENDING`. `/api/rule-check` imports `checker/rule_checker.py` and never calls a model.
