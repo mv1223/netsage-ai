@@ -78,7 +78,7 @@ Edited reviews need a corrected diagnosis and a comment. Rejected reviews need a
 
 ## Responsible AI
 
-`documentation/responsible_ai_log.md` and the Responsible AI page list five TEMPLATE records (trunk/VLAN, DHCP, ACL, NAT, guest wireless). They are not lab results. After you actually test, replace those rows and keep real Edited/Rejected reviews from the app.
+The Responsible AI page lists five TEMPLATE records (trunk/VLAN, DHCP, ACL, NAT, guest wireless). They are not lab results. After you actually test, replace those rows and keep real Edited/Rejected reviews from the app.
 
 ## Dashboard
 
@@ -90,7 +90,7 @@ If no reviews exist, the label is **Awaiting real test data**. Template responsi
 
 ## Packet Tracer workflow
 
-See `documentation/packet_tracer_guide.md`. Typical commands:
+Typical commands:
 
 - show ip interface brief
 - show interfaces status
