@@ -76,13 +76,11 @@ TEMPLATE_RECORDS = [
 
 
 def load_cases(db: Session) -> int:
-    if db.query(Case).count() > 0:
-        return db.query(Case).count()
-
     csv_path = find_cases_csv()
     if not csv_path.exists():
-        return 0
+        return db.query(Case).count()
 
+    csv_cases: dict[str, dict] = {}
     with csv_path.open(encoding="utf-8", newline="") as handle:
         reader = csv.DictReader(handle)
         for raw_row in reader:
@@ -91,19 +89,45 @@ def load_cases(db: Session) -> int:
             if not case_id:
                 continue
             show_val = row.get("show_outputs") or row.get("show_output") or ""
-            db.add(
-                Case(
-                    case_id=case_id,
-                    issue_type=row.get("issue_type", "").strip(),
-                    symptom=row.get("symptom", "").strip(),
-                    topology_note=row.get("topology_note", "").strip(),
-                    show_outputs=show_val.strip(),
-                    expected_fault=row.get("expected_fault", "").strip(),
-                    osi_layer=row.get("osi_layer", "").strip(),
-                    concept=row.get("concept", "").strip(),
-                    severity=row.get("severity", "").strip(),
-                )
-            )
+            title_val = row.get("title", "").strip()
+            issue_type_val = row.get("issue_type", "").strip() or title_val or "General"
+            csv_cases[case_id] = {
+                "case_id": case_id,
+                "issue_type": issue_type_val,
+                "symptom": row.get("symptom", "").strip(),
+                "topology_note": row.get("topology_note", "").strip(),
+                "show_outputs": show_val.strip(),
+                "expected_fault": row.get("expected_fault", "").strip(),
+                "osi_layer": row.get("osi_layer", "").strip(),
+                "concept": row.get("concept", "").strip(),
+                "severity": row.get("severity", "").strip(),
+            }
+
+    if not csv_cases:
+        return db.query(Case).count()
+
+    existing = {c.case_id: c for c in db.query(Case).all()}
+    
+    # Upsert cases from CSV
+    for cid, data in csv_cases.items():
+        if cid in existing:
+            obj = existing[cid]
+            obj.issue_type = data["issue_type"]
+            obj.symptom = data["symptom"]
+            obj.topology_note = data["topology_note"]
+            obj.show_outputs = data["show_outputs"]
+            obj.expected_fault = data["expected_fault"]
+            obj.osi_layer = data["osi_layer"]
+            obj.concept = data["concept"]
+            obj.severity = data["severity"]
+        else:
+            db.add(Case(**data))
+
+    # Remove cases in DB that are no longer in CSV
+    for cid, obj in existing.items():
+        if cid not in csv_cases:
+            db.delete(obj)
+
     db.commit()
     return db.query(Case).count()
 

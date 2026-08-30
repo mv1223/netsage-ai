@@ -33,11 +33,19 @@ def client():
             pass
 
 
+def _get_first_case_id(client: TestClient) -> str:
+    res = client.get("/api/cases")
+    items = res.json().get("items", [])
+    assert len(items) > 0, "No cases found in database"
+    return items[0]["case_id"]
+
+
 def _analyze(client: TestClient) -> int:
+    cid = _get_first_case_id(client)
     res = client.post(
         "/api/analyze",
         json={
-            "case_id": "NS-ACL-01",
+            "case_id": cid,
             "symptom": "Ping works but HTTP fails",
             "topology_note": "R17 Fa0/1 faces 192.168.200.10",
             "show_outputs": (
@@ -58,10 +66,11 @@ def test_health(client: TestClient):
 
 
 def test_case_search(client: TestClient):
-    res = client.get("/api/cases", params={"q": "NS-VLAN-01"})
+    cid = _get_first_case_id(client)
+    res = client.get("/api/cases", params={"q": cid})
     assert res.status_code == 200
     ids = [row["case_id"] for row in res.json()["items"]]
-    assert "NS-VLAN-01" in ids
+    assert cid in ids
 
 
 def test_missing_case(client: TestClient):
@@ -86,10 +95,11 @@ def test_analyze_requires_show_output(client: TestClient):
 
 
 def test_ai_diagnosis_and_json_shape(client: TestClient):
+    cid = _get_first_case_id(client)
     res = client.post(
         "/api/analyze",
         json={
-            "case_id": "NS-ACL-01",
+            "case_id": cid,
             "symptom": "Ping works but HTTP fails",
             "topology_note": "R17 Fa0/1 faces 192.168.200.10",
             "show_outputs": (
