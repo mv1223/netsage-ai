@@ -11,7 +11,7 @@ from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from sqlalchemy.orm import Session
@@ -87,6 +87,9 @@ def _diagnosis_payload(row: Diagnosis) -> dict:
 
 @app.get("/")
 def root():
+    index_file = ROOT / "frontend" / "dist" / "index.html"
+    if index_file.exists():
+        return FileResponse(index_file)
     return {
         "name": "NetSage AI",
         "message": "This is the API. Open the website at http://127.0.0.1:5173",
@@ -401,5 +404,17 @@ def rule_check(body: RuleCheckRequest):
 
 frontend_dist = ROOT / "frontend" / "dist"
 if frontend_dist.exists():
-    app.mount("/", StaticFiles(directory=str(frontend_dist), html=True), name="static")
+    assets_dir = frontend_dist / "assets"
+    if assets_dir.exists():
+        app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
+
+    @app.get("/{full_path:path}")
+    async def catch_all(full_path: str):
+        if full_path.startswith("api"):
+            raise HTTPException(status_code=404, detail="API endpoint not found")
+        file_path = frontend_dist / full_path
+        if file_path.is_file():
+            return FileResponse(file_path)
+        return FileResponse(frontend_dist / "index.html")
+
 
